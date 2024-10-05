@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 
 // Đảm bảo thư mục dữ liệu tồn tại
 const dataDir = path.join(__dirname, 'data');
-if (!fs.existsSync(dataDir)){
+if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir);
 }
 
@@ -122,8 +122,10 @@ app.get('/api/users/:id', (req, res) => {
     });
 });
 
+// Định nghĩa port
+const port = process.env.PORT || 3000; // Nếu không có biến môi trường PORT thì sẽ dùng 3000
+
 // Lắng nghe trên cổng do hosting cung cấp
 app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`)
-  })
-  
+    console.log(`Example app listening on port ${port}`);
+});
