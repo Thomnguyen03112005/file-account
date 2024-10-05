@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account List</title>
+    <!-- Font Awesome for icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar {
+            width: 100%;
+            background-color: #2c3e50;
+            padding: 10px;
+            color: #ecf0f1;
+            text-align: center;
+        }
+
+        .sidebar img {
+            width: 100px;
+            margin-bottom: 10px;
+        }
+
+        .sidebar h2 {
+            color: #ecf0f1;
+            margin-bottom: 20px;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 10px;
+            color: #ecf0f1;
+            text-decoration: none;
+            margin-bottom: 10px;
+        }
+
+        .sidebar a:hover {
+            background-color: #34495e;
+        }
+
+        .content {
+            flex-grow: 1;
+            padding: 10px;
+        }
+
+        .content h2 {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            justify-content: center;
+            position: relative;
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 15px;
+            color: #7f8c8d;
+        }
+
+        .search-bar input {
+            width: 90%;
+            padding: 8px 8px 8px 35px;
+            font-size: 14px;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+        }
+
+        .delete-by-id {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .delete-by-id input {
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+            margin-right: 10px;
+            width: 200px;
+        }
+
+        .delete-by-id button {
+            padding: 8px 12px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+
+        .delete-by-id button:hover {
+            background-color: #c0392b;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .action-buttons button {
+            padding: 8px 12px;
+            margin: 0 5px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+
+        .action-buttons button:hover {
+            background-color: #c0392b;
+        }
+
+        .action-buttons button.add-account {
+            background-color: #3498db;
+        }
+
+        .action-buttons button.add-account:hover {
+            background-color: #2980b9;
+        }
+
+        .action-buttons button.change-role {
+            background-color: #f1c40f;
+            color: #2c3e50;
+        }
+
+        .action-buttons button.change-role:hover {
+            background-color: #d4ac0d;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        table, th, td {
+            border: 1px solid #bdc3c7;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #34495e;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        @media (min-width: 768px) {
+            body {
+                flex-direction: row;
+            }
+
+            .sidebar {
+                width: 250px;
+                height: 100vh;
+                text-align: left;
+                position: fixed;
+            }
+
+            .content {
+                margin-left: 250px;
+                padding: 20px;
+            }
+
+            .search-bar input {
+                width: 300px;
+            }
+
+            table {
+                font-size: 16px;
+            }
+        }
+
+        .pagination {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .pagination button {
+            padding: 5px 10px;
+            margin: 5px;
+            border: none;
+            background-color: #3498db;
+            color: white;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        
+        .pagination button:hover {
+            background-color: #2980b9;
+        }
+        
+        .pagination span {
+            margin: 5px;
+            font-weight: bold;
+        }
+        
+        .page-number {
+            margin: 0 5px;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 3px;
+        }
+        
+        .page-number.active, .page-number:hover {
+            background-color: #2980b9;
+            color: white;
+        }
+
+        .no-results {
+            text-align: center;
+            margin-top: 20px;
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 5px;
+            color: white;
+            display: none;
+            z-index: 1000;
+        }
+
+        .notification.success {
+            background-color: #2ecc71;
+        }
+
+        .notification.error {
+            background-color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <img alt="Logo" src="logo.png" />
+        <h2>Control Panel</h2>
+        <a href="../admin/index.html"><i class="fas fa-home"></i> Dashboard</a>
+        <!-- Thêm các liên kết sidebar khác nếu cần -->
+    </div>
+    <div class="content">
+        <h2>Account List</h2>
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input id="searchInput" placeholder="Search by ID, Username or Email" type="text" oninput="debounceSearch()" />
+        </div>
+        <div class="delete-by-id">
+            <input id="deleteIdInput" placeholder="Enter ID to delete" type="number" />
+            <button onclick="deleteUserById()"><i class="fas fa-trash-alt"></i> Delete by ID</button>
+        </div>
+        <div class="action-buttons">
+            <button class="add-account" onclick="window.location.href='add_account.html'"><i class="fas fa-user-plus"></i> Add Account</button>
+            <button id="changeRoleSelectedButton" class="change-role" onclick="changeRole()"><i class="fas fa-user-cog"></i> Change Role</button>
+            <button id="exportButton" onclick="exportToExcel()" disabled>Export to Excel</button>
+        </div>
+        <h3><i class="fas fa-users"></i> All Accounts</h3>
+        <table> 
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Password</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody class="activity-data">
+                <!-- Dữ liệu tài khoản sẽ được thêm vào đây -->
+            </tbody>
+        </table>
+        <div class="no-results" id="noResults" style="display: none;">
+            No accounts found.
+        </div>
+        <div class="pagination">
+            <button id="prevPage" disabled>&laquo; Previous</button>
+            <div id="pageNumbers"></div>
+            <button id="nextPage">Next &raquo;</button>
+        </div>
+    </div>
+    <div class="notification success" id="successNotification">Action was successful!</div>
+    <div class="notification error" id="errorNotification">An error occurred!</div>
+
+    <script>
+        let currentPage = 1;
+        const recordsPerPage = 5; // Số lượng tài khoản trên mỗi trang
+        let accounts = [];
+        let filteredAccounts = [];
+
+        // Hàm tải dữ liệu tài khoản từ file JSON
+        async function loadAccounts() {
+            const response = await fetch('data/userdata.json');
+            accounts = await response.json();
+            filteredAccounts = accounts.datauser;
+            displayAccounts();
+            setupPagination();
+        }
+
+        // Hàm hiển thị tài khoản trong bảng
+        function displayAccounts() {
+            const tbody = document.querySelector('.activity-data');
+            tbody.innerHTML = '';
+
+            const startIndex = (currentPage - 1) * recordsPerPage;
+            const endIndex = startIndex + recordsPerPage;
+
+            const currentAccounts = filteredAccounts.slice(startIndex, endIndex);
+
+            currentAccounts.forEach(account => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${account.id}</td>
+                    <td>${account.username}</td>
+                    <td>${account.email}</td>
+                    <td>${account.password}</td>
+                    <td>${account.role}</td>
+                    <td>
+                        <button onclick="editAccount(${account.id})"><i class="fas fa-edit"></i> Edit</button>
+                        <button onclick="deleteAccount(${account.id})"><i class="fas fa-trash-alt"></i> Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            document.getElementById('noResults').style.display = currentAccounts.length === 0 ? 'block' : 'none';
+            document.getElementById('exportButton').disabled = currentAccounts.length === 0;
+            setupPagination();
+        }
+
+        // Hàm tìm kiếm tài khoản
+        function debounceSearch() {
+            clearTimeout(window.searchTimeout);
+            window.searchTimeout = setTimeout(() => {
+                const searchInput = document.getElementById('searchInput').value.toLowerCase();
+                filteredAccounts = accounts.datauser.filter(account => {
+                    return (
+                        account.username.toLowerCase().includes(searchInput) ||
+                        account.email.toLowerCase().includes(searchInput) ||
+                        account.id.toString().includes(searchInput)
+                    );
+                });
+                currentPage = 1;
+                displayAccounts();
+                setupPagination();
+            }, 300);
+        }
+
+        // Hàm phân trang
+        function setupPagination() {
+            const pageNumbers = document.getElementById('pageNumbers');
+            pageNumbers.innerHTML = '';
+
+            const totalPages = Math.ceil(filteredAccounts.length / recordsPerPage);
+
+            for (let i = 1; i <= totalPages; i++) {
+                const pageButton = document.createElement('span');
+                pageButton.innerText = i;
+                pageButton.className = 'page-number' + (i === currentPage ? ' active' : '');
+                pageButton.onclick = () => {
+                    currentPage = i;
+                    displayAccounts();
+                };
+                pageNumbers.appendChild(pageButton);
+            }
+
+            document.getElementById('prevPage').disabled = currentPage === 1;
+            document.getElementById('nextPage').disabled = currentPage === totalPages;
+        }
+
+        // Hàm xóa tài khoản theo ID
+        function deleteUserById() {
+            const deleteId = parseInt(document.getElementById('deleteIdInput').value);
+            if (!deleteId) {
+                showNotification('error', 'Invalid ID');
+                return;
+            }
+
+            const accountIndex = accounts.datauser.findIndex(account => account.id === deleteId);
+            if (accountIndex === -1) {
+                showNotification('error', 'Account not found');
+                return;
+            }
+
+            accounts.datauser.splice(accountIndex, 1);
+            saveAccounts();
+            showNotification('success', 'Account deleted successfully!');
+        }
+
+        // Hàm xóa tài khoản theo ID
+        function deleteAccount(id) {
+            const accountIndex = accounts.datauser.findIndex(account => account.id === id);
+            if (accountIndex !== -1) {
+                accounts.datauser.splice(accountIndex, 1);
+                saveAccounts();
+                showNotification('success', 'Account deleted successfully!');
+            }
+        }
+
+        // Hàm xuất tài khoản ra file Excel
+        function exportToExcel() {
+            const ws = XLSX.utils.json_to_sheet(filteredAccounts);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Accounts');
+            XLSX.writeFile(wb, 'accounts.xlsx');
+        }
+
+        // Hàm lưu dữ liệu tài khoản vào file JSON
+        async function saveAccounts() {
+            const response = await fetch('data/userdata.json', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(accounts)
+            });
+
+            if (response.ok) {
+                loadAccounts();
+            } else {
+                showNotification('error', 'Failed to save accounts');
+            }
+        }
+
+        // Hàm hiển thị thông báo
+        function showNotification(type, message) {
+            const notification = type === 'success' ? document.getElementById('successNotification') : document.getElementById('errorNotification');
+            notification.innerText = message;
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+
+        // Hàm khởi tạo ứng dụng
+        loadAccounts();
+
+    </script>
+</body>
+</html>

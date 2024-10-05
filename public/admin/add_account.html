@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <title>Add Account</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #ecf0f1;
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+        input {
+            padding: 10px;
+            margin: 5px;
+            width: 300px;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <h2>Add New Account</h2>
+
+    <input id="emailInput" placeholder="Email" type="email" required />
+    <input id="passwordInput" placeholder="Password" type="password" required />
+    <button id="addAccountButton">Add Account</button>
+
+    <script>
+        document.getElementById('addAccountButton').addEventListener('click', () => {
+            const username = document.getElementById('usernameInput').value;
+            const email = document.getElementById('emailInput').value;
+            const password = document.getElementById('passwordInput').value;
+
+            if (username && email && password) {
+                const newUser = { username, email, rawPassword: password, role: 'Chưa sử dụng' }; // Cấu trúc dữ liệu tài khoản
+
+                fetch('/api/users', { // Gửi dữ liệu đến API
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(newUser),
+                })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Account added successfully!');
+                        window.location.href = 'index.html'; // Quay lại trang danh sách tài khoản
+                    } else {
+                        alert('Failed to add account.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error adding account:', error);
+                    alert('Error adding account.');
+                });
+            } else {
+                alert('Please fill in all fields.');
+            }
+        });
+    </script>
+</body>
+</html>
