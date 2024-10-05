@@ -10,6 +10,8 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
+app.use(express.static(path.join(__dirname, 'public/admin')));
+
 // Đảm bảo thư mục dữ liệu tồn tại
 const dataDir = path.join(__dirname, 'data');
 if (!fs.existsSync(dataDir)) {
