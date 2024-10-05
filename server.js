@@ -1,8 +1,10 @@
+// api/index.js
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
+const serverless = require('serverless-http');
 
 const app = express();
 
@@ -10,10 +12,12 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
+// Đường dẫn tuyệt đối đến thư mục dữ liệu
+const dataDir = path.join(process.cwd(), 'data');
+
 // Đảm bảo thư mục dữ liệu tồn tại
-const dataDir = path.join(__dirname, 'data');
 if (!fs.existsSync(dataDir)){
-    fs.mkdirSync(dataDir);
+    fs.mkdirSync(dataDir, { recursive: true });
 }
 
 // API để lấy dữ liệu tài khoản từ tệp JSON
@@ -122,11 +126,6 @@ app.get('/api/users/:id', (req, res) => {
     });
 });
 
-// Lắng nghe trên cổng do hosting cung cấp
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
-
-// Xuất ứng dụng
+// Xuất handler cho Vercel
 module.exports = app;
+module.exports.handler = serverless(app);
