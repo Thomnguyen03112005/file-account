@@ -1,10 +1,8 @@
-// api/index.js
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
-const serverless = require('serverless-http');
 
 const app = express();
 
@@ -12,16 +10,14 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// Đường dẫn tuyệt đối đến thư mục dữ liệu
-const dataDir = path.join(process.cwd(), 'data');
-
 // Đảm bảo thư mục dữ liệu tồn tại
+const dataDir = path.join(__dirname, 'data');
 if (!fs.existsSync(dataDir)){
-    fs.mkdirSync(dataDir, { recursive: true });
+    fs.mkdirSync(dataDir);
 }
 
 // API để lấy dữ liệu tài khoản từ tệp JSON
-app.get('/data', (req, res) => {
+app.get('/api/data', (req, res) => {
     fs.readFile(path.join(dataDir, 'userdata.json'), 'utf8', (err, data) => {
         if (err) {
             return res.status(500).send('Error reading file');
@@ -31,7 +27,7 @@ app.get('/data', (req, res) => {
 });
 
 // API ACCOUNT
-app.get('/account', (req, res) => {
+app.get('/api/account', (req, res) => {
     fs.readFile(path.join(dataDir, 'account.json'), 'utf8', (err, data) => {
         if (err) {
             return res.status(500).send('Error reading file');
@@ -41,7 +37,7 @@ app.get('/account', (req, res) => {
 });
 
 // API để thêm tài khoản mới
-app.post('/data', (req, res) => {
+app.post('/api/data', (req, res) => {
     const newUserData = req.body;
 
     fs.readFile(path.join(dataDir, 'userdata.json'), 'utf8', (err, data) => {
@@ -61,7 +57,7 @@ app.post('/data', (req, res) => {
 });
 
 // API để xóa tài khoản
-app.delete('/users/:id', (req, res) => {
+app.delete('/api/users/:id', (req, res) => {
     const userId = parseInt(req.params.id, 10);
 
     fs.readFile(path.join(dataDir, 'userdata.json'), 'utf8', (err, data) => {
@@ -81,7 +77,7 @@ app.delete('/users/:id', (req, res) => {
 });
 
 // API để thay đổi vai trò của tài khoản
-app.put('/users/:id/role', (req, res) => {
+app.put('/api/users/:id/role', (req, res) => {
     const userId = parseInt(req.params.id, 10);
     const { role } = req.body;
 
@@ -108,7 +104,7 @@ app.put('/users/:id/role', (req, res) => {
 });
 
 // API để tìm kiếm tài khoản theo ID
-app.get('/users/:id', (req, res) => {
+app.get('/api/users/:id', (req, res) => {
     const userId = parseInt(req.params.id, 10);
 
     fs.readFile(path.join(dataDir, 'userdata.json'), 'utf8', (err, data) => {
@@ -126,5 +122,8 @@ app.get('/users/:id', (req, res) => {
     });
 });
 
-// Xuất handler cho Vercel
-module.exports.handler = serverless(app);
+// Lắng nghe trên cổng do hosting cung cấp
+app.listen(port, () => {
+    console.log(`Example app listening on port ${port}`)
+  })
+  
