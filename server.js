@@ -21,7 +21,7 @@ if (!fs.existsSync(dataDir)){
 }
 
 // API để lấy dữ liệu tài khoản từ tệp JSON
-app.get('/api/data', (req, res) => {
+app.get('/data', (req, res) => {
     fs.readFile(path.join(dataDir, 'userdata.json'), 'utf8', (err, data) => {
         if (err) {
             return res.status(500).send('Error reading file');
@@ -31,7 +31,7 @@ app.get('/api/data', (req, res) => {
 });
 
 // API ACCOUNT
-app.get('/api/account', (req, res) => {
+app.get('/account', (req, res) => {
     fs.readFile(path.join(dataDir, 'account.json'), 'utf8', (err, data) => {
         if (err) {
             return res.status(500).send('Error reading file');
@@ -41,7 +41,7 @@ app.get('/api/account', (req, res) => {
 });
 
 // API để thêm tài khoản mới
-app.post('/api/data', (req, res) => {
+app.post('/data', (req, res) => {
     const newUserData = req.body;
 
     fs.readFile(path.join(dataDir, 'userdata.json'), 'utf8', (err, data) => {
@@ -61,7 +61,7 @@ app.post('/api/data', (req, res) => {
 });
 
 // API để xóa tài khoản
-app.delete('/api/users/:id', (req, res) => {
+app.delete('/users/:id', (req, res) => {
     const userId = parseInt(req.params.id, 10);
 
     fs.readFile(path.join(dataDir, 'userdata.json'), 'utf8', (err, data) => {
@@ -81,7 +81,7 @@ app.delete('/api/users/:id', (req, res) => {
 });
 
 // API để thay đổi vai trò của tài khoản
-app.put('/api/users/:id/role', (req, res) => {
+app.put('/users/:id/role', (req, res) => {
     const userId = parseInt(req.params.id, 10);
     const { role } = req.body;
 
@@ -108,7 +108,7 @@ app.put('/api/users/:id/role', (req, res) => {
 });
 
 // API để tìm kiếm tài khoản theo ID
-app.get('/api/users/:id', (req, res) => {
+app.get('/users/:id', (req, res) => {
     const userId = parseInt(req.params.id, 10);
 
     fs.readFile(path.join(dataDir, 'userdata.json'), 'utf8', (err, data) => {
@@ -127,5 +127,4 @@ app.get('/api/users/:id', (req, res) => {
 });
 
 // Xuất handler cho Vercel
-module.exports = app;
 module.exports.handler = serverless(app);
